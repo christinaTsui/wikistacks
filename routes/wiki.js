@@ -1,23 +1,22 @@
 const express = require('express');
 const router = express.Router();
-// const index = require('../views/index');
+const index = require('../views/index');
 
 
-router.get('/',(req, res, next) => {
-  res.send("hello! router.get")
+router.get('/',async (req, res, next) => {
+  const pages = await Page.findAll()
+  console.log(pages[0].title);
+  res.send(index.main(pages))
 })
 
 // const models = require("../models");
 const { addPage } = require("../views");
 const { Page } = require("../models");
-const { wikipage } = require("../models");
+// const { wikipage } = require("../models");
 // router.post('/', (req, res, next) => {
 //   res.send(req.body.title)
 // })
 
-// router.get('/:slug', (req, res, next) => {
-//   res.send(wikipage() );
-// })
 
 router.post('/', async (req, res, next) => {
 
@@ -34,14 +33,21 @@ router.post('/', async (req, res, next) => {
   // make sure we only redirect *after* our save is complete!
   // note: `.save` returns a promise.
   try {
-    await page.save();
-    console.log(page)
-    res.redirect('/wiki/');
+    await page.save(); //saves to the database
+    res.redirect(`/wiki/${page.slug}`);
   } catch (error) { next(error) }
 });
 
 router.get('/add', (req, res, next) => {
   res.send(addPage());
-})
+});
+
+router.get('/:slug', async (req, res, next) => {
+  const foundPage = await Page.findOne({where: {slug: req.params.slug}});
+  // console.log(foundPage);
+
+  // res.json(foundPage);
+  res.send(index.wikiPage(foundPage))
+});
 
 module.exports = router;
