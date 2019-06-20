@@ -19,6 +19,12 @@ const Page = db.define('page', {
   }
 })
 
+Page.beforeValidate((pageInstance) => {
+
+  const regex = / /gi;
+  pageInstance.slug = pageInstance.title.replace(regex, '_')
+})
+
 const User = db.define('user', {
   name: {
     type: Sequelize.STRING,
@@ -33,8 +39,10 @@ const User = db.define('user', {
   }
 })
 
+
+
 module.exports = {
-  db
-  // Page,
-  // User
+  // db
+  Page,
+  User
 }
